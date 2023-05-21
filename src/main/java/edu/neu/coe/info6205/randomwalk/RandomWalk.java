@@ -4,6 +4,8 @@
 
 package edu.neu.coe.info6205.randomwalk;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.Random;
 
 public class RandomWalk {
@@ -72,13 +74,34 @@ public class RandomWalk {
     }
 
     public static void main(String[] args) {
-        if (args.length == 0)
+      /*  if (args.length == 0)
             throw new RuntimeException("Syntax: RandomWalk steps [experiments]");
         int m = Integer.parseInt(args[0]);
         int n = 30;
         if (args.length > 1) n = Integer.parseInt(args[1]);
         double meanDistance = randomWalkMulti(m, n);
         System.out.println(m + " steps: " + meanDistance + " over " + n + " experiments");
+*/
+        // Second approach
+
+        int n = 1000;      // Number of experiments for each step size
+        StringBuilder sb = new StringBuilder("Steps, MeanDistance\n");
+        for(int i=1; i<10000; i++){
+            //double m = Math.pow(2, i);
+            int m = 2*i;
+            double meanDistance = randomWalkMulti(m, n);
+            sb.append(m  + "," + meanDistance+"\n");     // Append the step size and mean distance to the StringBuilder
+            System.out.println(m + " steps: " + meanDistance + " over " +  n + " experiments");
+        }
+
+        // Write the results to a CSV file named "result.csv"
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter("result.csv"));
+            bw.write(sb.toString());
+            bw.close();
+        } catch(Exception e) {
+            System.out.println("Error in creating result file"+e);
+        }
     }
 
 }
