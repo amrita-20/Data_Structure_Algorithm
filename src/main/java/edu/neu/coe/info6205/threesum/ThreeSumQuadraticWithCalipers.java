@@ -31,9 +31,9 @@ public class ThreeSumQuadraticWithCalipers implements ThreeSum {
      */
     public Triple[] getTriples() {
         List<Triple> triples = new ArrayList<>();
-        Collections.sort(triples); // ???
         for (int i = 0; i < length - 2; i++)
             triples.addAll(calipers(a, i, Triple::sum));
+        Collections.sort(triples);
         return triples.stream().distinct().toArray(Triple[]::new);
     }
 
@@ -49,7 +49,21 @@ public class ThreeSumQuadraticWithCalipers implements ThreeSum {
     public static List<Triple> calipers(int[] a, int i, Function<Triple, Integer> function) {
         List<Triple> triples = new ArrayList<>();
         // FIXME : use function to qualify triples and to navigate otherwise.
-        // END 
+        int to = i + 1;
+        int from = a.length - 1;
+        while (to < from) {
+            Triple triple = new Triple(a[i], a[to], a[from]);
+            int sum = function.apply(triple);
+            if (sum == 0) {
+                triples.add(triple);
+                to++;
+                from--;
+            } else if (sum < 0) {
+                to++;
+            } else {
+                from--;
+            }
+        }
         return triples;
     }
 
