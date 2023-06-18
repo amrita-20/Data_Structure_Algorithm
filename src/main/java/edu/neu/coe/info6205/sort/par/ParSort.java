@@ -2,6 +2,7 @@ package edu.neu.coe.info6205.sort.par;
 
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ForkJoinPool;
 
 /**
  * This code has been fleshed out by Ziyao Qiao. Thanks very much.
@@ -10,16 +11,17 @@ import java.util.concurrent.CompletableFuture;
 class ParSort {
 
     public static int cutoff = 1000;
+    public static double maxDepth = 0;
+    public static ForkJoinPool myPool;
 
-    public static void sort(int[] array, int from, int to) {
-        if (to - from < cutoff) Arrays.sort(array, from, to);
+    public static void sort(int[] array, int from, int to, int depth) {
+        if (to - from < cutoff || depth >= maxDepth)
+            Arrays.sort(array, from, to);
         else {
-            // FIXME next few lines should be removed from public repo.
-            CompletableFuture<int[]> parsort1 = parsort(array, from, from + (to - from) / 2); // TO IMPLEMENT
-            CompletableFuture<int[]> parsort2 = parsort(array, from + (to - from) / 2, to); // TO IMPLEMENT
+            CompletableFuture<int[]> parsort1 = parsort(array, from, from + (to - from) / 2, depth+1);
+            CompletableFuture<int[]> parsort2 = parsort(array, from + (to - from) / 2, to, depth+1);
             CompletableFuture<int[]> parsort = parsort1.thenCombine(parsort2, (xs1, xs2) -> {
                 int[] result = new int[xs1.length + xs2.length];
-                // TO IMPLEMENT
                 int i = 0;
                 int j = 0;
                 for (int k = 0; k < result.length; k++) {
@@ -37,20 +39,19 @@ class ParSort {
             });
 
             parsort.whenComplete((result, throwable) -> System.arraycopy(result, 0, array, from, result.length));
-//            System.out.println("# threads: "+ ForkJoinPool.commonPool().getRunningThreadCount());
+           // System.out.println("# threads: "+ myPool.getRunningThreadCount());
             parsort.join();
         }
     }
 
-    private static CompletableFuture<int[]> parsort(int[] array, int from, int to) {
+    private static CompletableFuture<int[]> parsort(int[] array, int from, int to, int depth) {
         return CompletableFuture.supplyAsync(
                 () -> {
                     int[] result = new int[to - from];
-                    // TO IMPLEMENT
                     System.arraycopy(array, from, result, 0, result.length);
-                    sort(result, 0, to - from);
+                    sort(result, 0, to - from, depth);
                     return result;
-                }
+                }, myPool
         );
     }
 }
