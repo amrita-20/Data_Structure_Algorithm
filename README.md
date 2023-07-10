@@ -1,1 +1,1 @@
-# INFO6205_PSA_Amrita&Saniya
+# INFO6205_PSA_Amrita
